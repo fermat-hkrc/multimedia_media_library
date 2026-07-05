@@ -45,6 +45,7 @@ public:
     ~AnalysisDataCaptionDao() = default;
 
     static void FixCaptionAnalysisDataAfterEdit(const std::string &fileId);
+    static bool IsValidFileId(const std::string &fileId);
 };
 } // namespace OHOS::Media::AnalysisData
 

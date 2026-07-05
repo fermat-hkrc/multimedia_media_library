@@ -41,4 +41,32 @@ void AnalysisDataCaptionDao::FixCaptionAnalysisDataAfterEdit(const std::string &
 
     MEDIA_DEBUG_LOG("Fix caption analysis data success, fileId: %{public}s", fileId.c_str());
 }
+
+bool AnalysisDataCaptionDao::IsValidFileId(const std::string &fileId)
+{
+    // R1: non-empty
+    if (fileId.empty()) {
+        return false;
+    }
+    // R2: length upper bound (INT64_MAX has 19 decimal digits)
+    static const std::string MAX_INT64_STR = "9223372036854775807";
+    if (fileId.size() > MAX_INT64_STR.size()) {
+        return false;
+    }
+    // R3: all digits
+    for (char c : fileId) {
+        if (c < '0' || c > '9') {
+            return false;
+        }
+    }
+    // R4: no leading zero (also excludes "0")
+    if (fileId[0] == '0') {
+        return false;
+    }
+    // R5: boundary check when equal length to INT64_MAX
+    if (fileId.size() == MAX_INT64_STR.size() && fileId > MAX_INT64_STR) {
+        return false;
+    }
+    return true;
+}
 } // namespace OHOS::Media::AnalysisData

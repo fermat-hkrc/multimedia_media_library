@@ -1,0 +1,76 @@
+开发需求书:tab_analysis_caption 的 file_id 校验纯函数
+====================================================
+
+一、背景
+----
+PR #11696「LVM 数据管理的数据库」为媒体库新增了 caption(图像描述)分析数据域,包含
+tab_analysis_caption 表以及 AnalysisDataCaptionDao。该 DAO 的
+FixCaptionAnalysisDataAfterEdit(const std::string &fileId) 会把入参 fileId 直接
+绑定进 SQL 语句(WHERE file_id = ?)。当前实现仅用 `!fileId.empty()` 做前置校验,
+无法拦截非法的 fileId(含非数字字符、前导零、超长溢出等)。tab_analysis_caption
+的 file_id 列类型为 INTEGER PRIMARY KEY,业务上 file_id 恒为正整数,因此在把字符串
+fileId 绑定进 SQL 之前需要一个纯函数对其做规范化校验。
+
+本子需求:新增一个自包含的纯函数 IsValidFileId,判定字符串 fileId 是否为
+「一个正整数的规范十进制表示」。该函数不访问数据库、无副作用,便于属性测试。
+本需求只做该纯函数的新增,不改动 FixCaptionAnalysisDataAfterEdit 的现有行为。
+
+二、需要新建/修改的文件
+----
+仅修改以下两个已存在文件(不新建文件):
+1. services/media_analysis_data_manager/include/dao/analysis_data_caption_dao.h
+   - 在 AnalysisDataCaptionDao 类的 public 区新增静态成员函数声明。
+2. services/media_analysis_data_manager/src/dao/analysis_data_caption_dao.cpp
+   - 新增该静态成员函数的定义。
+
+三、函数签名与语义契约
+----
+签名(类的 public 静态成员):
+    static bool IsValidFileId(const std::string &fileId);
+
+语义:当且仅当 fileId 是某个正整数的规范十进制字符串表示时返回 true,否则返回 false。
+「规范十进制」= 无前导零、无正负号、无空白、无任何非数字字符,且数值不超过 int64
+的表示范围。
+
+出错行为:该函数不抛异常、不打日志、不访问任何全局/数据库状态;对任意输入
+(包括空串、含 '\0' 的串)都必须返回一个确定的 bool,不得崩溃。
+
+四、算法/映射规格(逐条,按顺序短路求值)
+----
+记 n = fileId.size(),s = fileId。函数按如下规则判定,任一条不满足即返回 false,
+全部满足返回 true:
+
+R1. 非空:n >= 1。空串返回 false。
+R2. 长度上限:n <= 19。(int64 最大值 9223372036854775807 为 19 位十进制;长度
+    超过 19 一律判非法以防溢出,返回 false。)
+R3. 全数字:s 中每个字符 c 都满足 '0' <= c <= '9'。出现任何其它字符(含空格、
+    正负号、小数点、'\0' 等)返回 false。
+R4. 无前导零:s[0] != '0'。这同时排除了 "0"、"00"、"007" 等。因此合法值恒 >= 1。
+R5. 边界值:当 n == 19 时,还需保证数值不超过 INT64_MAX。做法为按字典序逐字符与
+    常量字符串 "9223372036854775807" 比较:若 s > 该字符串(等长字典序比较)则
+    返回 false。n < 19 时该检查自动通过。
+
+推论/不变量(供属性测试参考):
+- 对任意 int64 v(1 <= v <= INT64_MAX),std::to_string(v) 必为合法(返回 true)。
+- 任何以 '0' 开头且长度 > 0 的串必为非法。
+- 任何含非 ['0'-'9'] 字符的串必为非法。
+- 合法当且仅当:s == std::to_string(strtoll(s)) 且该值 >= 1(等价刻画)。
+
+五、提交信息格式
+----
+单行标题 + 空行 + 正文,格式如下:
+
+    feat: add IsValidFileId pure validator for caption DAO file_id
+
+    Add AnalysisDataCaptionDao::IsValidFileId to validate that a fileId
+    string is the canonical decimal form of a positive int64 before it is
+    bound into caption analysis SQL statements.
+
+六、执行约束
+----
+- 只做本需求(新增 IsValidFileId 纯函数),不改动其它逻辑、不做额外重构。
+- 仅 git add 上述两个文件:
+    services/media_analysis_data_manager/include/dao/analysis_data_caption_dao.h
+    services/media_analysis_data_manager/src/dao/analysis_data_caption_dao.cpp
+  然后按第五节的提交信息格式 git commit。
+- 不要自己运行任何测试 / PBT / 构建。提交后 post-commit 钩子会自动发起属性测试。
