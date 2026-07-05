@@ -57,6 +57,7 @@ private:
     static std::vector<std::string> StringToVector(const std::string &str);
 
     static const std::string ENCODINGS_SEPARATOR;
+    static std::unordered_map<std::string, CompatibleInfo> compatibleInfoCache_;
 };
 }
 #endif

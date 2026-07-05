@@ -58,6 +58,17 @@ void MediaLibraryBundleManager::GetBundleNameByUID(const int32_t uid, string &bu
     }
 }
 
+void MediaLibraryBundleManager::GetBundleNameByTokenId(const int64_t tokenId, string &bundleName)
+{
+    auto it = tokenIdToBundleNameCache_.find(tokenId);
+    if (it != tokenIdToBundleNameCache_.end()) {
+        bundleName = it->second;
+        return;
+    }
+    bundleName = GetClientBundleName();
+    tokenIdToBundleNameCache_[tokenId] = bundleName;
+}
+
 /**
  * if it is called by SA, bundlename is null. we should not log everytime
  */
