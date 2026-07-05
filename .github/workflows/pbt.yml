@@ -1,38 +1,32 @@
 name: PBT
 on:
   pull_request:
-  workflow_dispatch:
-    inputs:
-      pr:
-        description: "Upstream gitcode PR number to replay"
-        default: "11696"
 
-# Self-hosted runner on oc.rustapp.uk (has the pi-pbt bun binary, provider
-# auth in ~/.pi-pbt/agent, and the dashboard bridge). Campaign detail also
-# streams live to the dashboard (localhost:8000 via SSH tunnel).
+# Runs the PBT campaign against THIS PR's changes on the self-hosted runner
+# (oc.rustapp.uk: pi-pbt bun binary, provider auth in ~/.pi-pbt/agent, dashboard
+# bridge). This is only the PBT check — the implementation is produced upstream
+# by `pi-pbt replay` (which opens the PR); the PR's Actions stage tests it.
+# Live campaign progress streams here and to the dashboard (:8000).
 jobs:
   pbt:
     runs-on: [self-hosted, linux]
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: pi-pbt replay + PBT (streamed)
+        with:
+          fetch-depth: 0            # need base..head to know the PR's changes
+      - name: pi-pbt PBT on PR changes (streamed)
         env:
-          PR: ${{ github.event.inputs.pr || '11696' }}
           PBT_LANG: zh
           PBT_SCAN_ROOT: ${{ github.workspace }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -o pipefail
           export PATH=/usr/local/bin:$PATH
           SESS="$HOME/.pi-pbt/agent/sessions"
-          echo "::group::Stage 1 — replay: extract sub-requirement from PR#$PR, implement, commit"
-          python3 .github/pbt-stream.py "$SESS" -- \
-            pi-pbt replay --pr "$PR" --project openharmony/multimedia_media_library \
-            --repo "$GITHUB_WORKSPACE" --lang zh --scan-root "$GITHUB_WORKSPACE"
-          echo "::endgroup::"
-          SHA=$(git rev-parse --short HEAD)
-          echo "Implemented commit: $SHA"
-          echo "::group::Stage 2 — PBT campaign (hook-run $SHA)"
+          SHA=$(git rev-parse --short "$HEAD_SHA")
+          echo "PBT check for PR head $SHA"
+          echo "::group::PBT campaign (hook-run $SHA)"
           python3 .github/pbt-stream.py "$SESS" -- \
             pi-pbt hook-run "$SHA" --repo "$GITHUB_WORKSPACE" --lang zh --scan-root "$GITHUB_WORKSPACE"
           echo "::endgroup::"
