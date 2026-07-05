@@ -19,6 +19,7 @@
 
 #include "analysis_data_video_dao.h"
 #include "analysis_data_watermark_dao.h"
+#include "analysis_data_caption_dao.h"
 #include "medialibrary_unistore_manager.h"
 #include "medialibrary_rdb_utils.h"
 
@@ -42,6 +43,7 @@ void AnalysisDataVisionDao::DeleteVisionDataAfterEdit(const std::string &fileId,
     AnalysisData::AnalysisDataVisionDao::DeleteFromAffectiveByFileId(fileId);
     AnalysisData::AnalysisDataVisionDao::DelAllStatusFromAestheticsScoreByFileId(fileId);
     AnalysisData::AnalysisDataVisionDao::DeleteFromVisionProfileByFileId(fileId);
+    AnalysisData::AnalysisDataCaptionDao::FixCaptionAnalysisDataAfterEdit(fileId);
     AnalysisData::AnalysisDataWatermarkDao::DeleteAnalysisWatermark(fileId);
 
     CHECK_AND_RETURN(needRefresh);

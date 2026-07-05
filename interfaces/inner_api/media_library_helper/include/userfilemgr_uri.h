@@ -278,6 +278,7 @@ namespace Media {
 #define CONST_PAH_ANA_ALBUM_ASSET "tab_analysis_album_asset_map"
 #define CONST_PAH_ANA_FOREGROUND "phaccess_ana_foreground_operation"
 #define CONST_PAH_ANA_WATERMARK "phaccess_ana_watermark_operation"
+#define CONST_PAH_ANA_CAPTION "phaccess_ana_caption_operation"
 // PhotoAccessHelper photo operation constants
 #define CONST_PAH_CREATE_PHOTO "datashare:///media/phaccess_photo_operation/create"
 #define CONST_PAH_SYS_CREATE_PHOTO "datashare:///media/phaccess_photo_operation/sys_create"

@@ -17,7 +17,11 @@
 #define UPGRADE_VISION_SQLS_H
 // table name need to be added here
 #define TABLE_TAB_ANALYSIS_LABEL "tab_analysis_label"
+#define TABLE_TAB_ANALYSIS_TOTAL "tab_analysis_total"
 // column name should be added here
+#define COLUMN_ANALYSIS_CAPTION "caption"
+// trigger name should be added here
+#define TRIGGER_ANALYSIS_UPDATE_SEARCH_TRIGGER "analysis_update_search_trigger"
 
 // sqls only execute in upgrade progress should be added here
 #define SQL_CREATE_TAB_ANALYSIS_OCR \
@@ -140,5 +144,29 @@
     "CASE WHEN subtype = 1 THEN -1 ELSE 0 END," \
     "CASE WHEN subtype = 1 THEN -1 ELSE 0 END" \
     "FROM Photos WHERE MEDIA_TYPE = 1"
+
+#define SQL_UPGRADE_CREATE_TAB_ANALYSIS_CAPTION \
+    "CREATE TABLE IF NOT EXISTS tab_analysis_caption (" \
+    "file_id INTEGER PRIMARY KEY, " \
+    "caption TEXT, " \
+    "caption_version TEXT, " \
+    "caption_vector TEXT, " \
+    "analysis_version TEXT)"
+
+#define SQL_UPGRADE_CREATE_ANALYSIS_UPDATE_SEARCH_TRIGGER \
+    "CREATE TRIGGER IF NOT EXISTS analysis_update_search_trigger AFTER UPDATE " \
+    " OF status, ocr, label, face, caption" \
+    " ON tab_analysis_total FOR EACH ROW " \
+    " WHEN (NEW.status = 1" \
+    " OR NEW.ocr = 1 OR NEW.label = 1 OR NEW.face > 2 OR NEW.caption = 1)" \
+    " BEGIN " \
+    " UPDATE tab_analysis_search_index" \
+    " SET cv_status = " \
+    " CASE WHEN (NEW.status = 1) THEN 0" \
+    " ELSE 2 END" \
+    " WHERE  (file_id = old.file_id " \
+    " AND cv_status = 1" \
+    " AND EXISTS (SELECT 1 FROM Photos WHERE file_id = old.file_id AND media_type != 2));" \
+    " END;"
 
 #endif // UPGRADE_VISION_SQLS_H
