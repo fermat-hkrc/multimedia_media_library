@@ -136,6 +136,7 @@ const std::map<std::string, OperationObject>& GetOprnObjMap()
         { VISION_PET_TAG_TABLE, OperationObject::VISION_PET_TAG },
         { CONST_PAH_ANA_PET_TAG, OperationObject::VISION_PET_TAG },
         {CONST_PAH_ANA_WATERMARK, OperationObject::VISION_WATERMARK },
+        {CONST_PAH_ANA_CAPTION, OperationObject::VISION_CAPTION },
 
         // use in Location Analyse
         { GEO_DICTIONARY_TABLE, OperationObject::GEO_DICTIONARY },
@@ -232,6 +233,7 @@ const std::map<OperationObject, std::map<OperationType, std::string>>& GetTableN
         { OperationObject::VISION_PET_TAG, { { OperationType::UNKNOWN_TYPE, VISION_PET_TAG_TABLE } } },
         { OperationObject::VISION_FACE_TAG, { { OperationType::UNKNOWN_TYPE, VISION_FACE_TAG_TABLE } } },
         { OperationObject::VISION_WATERMARK, { { OperationType::UNKNOWN_TYPE, CONST_VISION_WATERMARK_TABLE } } },
+        { OperationObject::VISION_CAPTION, { { OperationType::UNKNOWN_TYPE, CONST_VISION_CAPTION_TABLE } } },
         { OperationObject::VISION_DEDUP_SELECTION, { { OperationType::UNKNOWN_TYPE, VISION_DEDUP_SELECTION } } },
         { OperationObject::VISION_PROFILE, { { OperationType::UNKNOWN_TYPE, VISION_PROFILE } } },
         { OperationObject::GEO_DICTIONARY, { { OperationType::UNKNOWN_TYPE, GEO_DICTIONARY_TABLE } } },

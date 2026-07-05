@@ -46,5 +46,18 @@ static vector<pair<int32_t, int32_t>> VersionAddVisionTable(NativeRdb::RdbStore&
     return UpgradeHelper::ExecuteCommands(commands, store);
 }
 REGISTER_SYNC_UPGRADE_MODULE_TASK(VERSION_ADD_VISION_TABLE, VISION_MODULE_NAME, VersionAddVisionTable)
+
+static vector<pair<int32_t, int32_t>> VersionAddCaptionTable(NativeRdb::RdbStore& store)
+{
+    SqlBuilder builder;
+    auto commands = builder.AddRawSql(SQL_UPGRADE_CREATE_TAB_ANALYSIS_CAPTION)
+                           .AddColumn(TABLE_TAB_ANALYSIS_TOTAL, COLUMN_ANALYSIS_CAPTION, "INT NOT NULL DEFAULT 0")
+                           .DropTrigger(TRIGGER_ANALYSIS_UPDATE_SEARCH_TRIGGER)
+                           .AddRawSql(SQL_UPGRADE_CREATE_ANALYSIS_UPDATE_SEARCH_TRIGGER)
+                           .Build();
+
+    return UpgradeHelper::ExecuteCommands(commands, store);
+}
+REGISTER_SYNC_UPGRADE_MODULE_TASK(VERSION_ADD_ANALYSIS_CAPTION_TABLE, VISION_MODULE_NAME, VersionAddCaptionTable)
 }
 }

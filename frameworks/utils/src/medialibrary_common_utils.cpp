@@ -256,6 +256,7 @@ static const std::unordered_set<std::string> FILE_KEY_WHITE_LIST {
     SIMILARITY,
     DUPLICATE,
     TOTAL_SCORE_STATUS,
+    CAPTION,
 };
 
 bool MediaLibraryCommonUtils::CheckWhiteList(const std::string &express)

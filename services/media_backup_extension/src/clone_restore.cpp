@@ -2367,7 +2367,8 @@ void CloneRestore::RestoreAnalysisTablesData()
         "tab_analysis_object",
         "tab_analysis_saliency_detect",
         "tab_analysis_recommendation",
-        "tab_analysis_crop"
+        "tab_analysis_crop",
+        "tab_analysis_caption"
     };
 
     vector<std::string> totalTypes = {
@@ -2379,7 +2380,8 @@ void CloneRestore::RestoreAnalysisTablesData()
         "object",
         "saliency",
         "recommendation",
-        "aesthetics_crop"
+        "aesthetics_crop",
+        "caption"
     };
 
     for (size_t index = 0; index < analysisTables.size(); index++) {

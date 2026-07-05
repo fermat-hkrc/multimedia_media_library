@@ -92,6 +92,7 @@ static const set<OperationObject> PHOTO_ACCESS_HELPER_OBJECTS = {
     OperationObject::PAH_BACKUP_POSTPROCESS,
     OperationObject::VISION_ANALYSIS,
     OperationObject::TAB_PHOTOS_EXT_OPERATE,
+    OperationObject::VISION_CAPTION,
 };
 
 std::string USER_STR = "user";

@@ -47,6 +47,7 @@ const std::string PET_FACE = "pet_face";
 const std::string SIMILARITY = "similarity";
 const std::string DUPLICATE = "duplicate";
 const std::string TOTAL_SCORE_STATUS = "total_score";
+const std::string CAPTION = "caption";
 } // namespace Media
 } // namespace OHOS
 #endif  // FRAMEWORKS_SERVICES_MEDIA_MULTI_STAGES_CAPTURE_INCLUDE_VISION_TOTAL_COLUMN_H

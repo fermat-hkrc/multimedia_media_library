@@ -160,10 +160,10 @@ const std::string CREATE_ALBUM_UPDATE_SEARCH_TRIGGER =
 const std::string ANALYSIS_UPDATE_SEARCH_TRIGGER = "analysis_update_search_trigger";
 const std::string CREATE_ANALYSIS_UPDATE_SEARCH_TRIGGER =
     std::string("CREATE TRIGGER IF NOT EXISTS analysis_update_search_trigger AFTER UPDATE ") +
-    " OF status, ocr, label, face" +
+    " OF status, ocr, label, face, caption" +
     " ON " + VISION_TOTAL_TABLE + " FOR EACH ROW " +
     " WHEN (NEW.status = 1" +
-    " OR NEW.ocr = 1 OR NEW.label = 1 OR NEW.face > 2)" +
+    " OR NEW.ocr = 1 OR NEW.label = 1 OR NEW.face > 2 OR NEW.caption = 1)" +
     " BEGIN " +
     " UPDATE " + SEARCH_TOTAL_TABLE +
     " SET " + TBL_SEARCH_CV_STATUS + " = " +

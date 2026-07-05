@@ -252,6 +252,14 @@ const std::string CREATE_TAB_ANALYSIS_POSE = "CREATE TABLE IF NOT EXISTS " + VIS
     "algo_version TEXT" \
     ")"
 
+#define SQL_CREATE_TAB_ANALYSIS_CAPTION \
+    "CREATE TABLE IF NOT EXISTS tab_analysis_caption (" \
+    "file_id INTEGER PRIMARY KEY, " \
+    "caption TEXT, " \
+    "caption_version TEXT, " \
+    "caption_vector TEXT, " \
+    "analysis_version TEXT)"
+
 const std::string CREATE_TAB_ANALYSIS_TOTAL = "CREATE TABLE IF NOT EXISTS " + VISION_TOTAL_TABLE + " (" +
     ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
     FILE_ID + " INT UNIQUE, " +
@@ -282,7 +290,8 @@ const std::string CREATE_TAB_ANALYSIS_TOTAL_FOR_ONCREATE = "CREATE TABLE IF NOT 
     PET_STATUS + " INT NOT NULL DEFAULT 0, " +
     SIMILARITY + " INT NOT NULL DEFAULT 0, " +
     DUPLICATE + " INT NOT NULL DEFAULT 0, " +
-    TOTAL_SCORE_STATUS + " INT NOT NULL DEFAULT 0) ";
+    TOTAL_SCORE_STATUS + " INT NOT NULL DEFAULT 0, " +
+    CAPTION + " INT NOT NULL DEFAULT 0) ";
 
 const std::string CREATE_TAB_ANALYSIS_VIDEO_TOTAL = "CREATE TABLE IF NOT EXISTS " +
     VISION_VIDEO_TOTAL_TABLE + " (" +
