@@ -48,6 +48,7 @@ const int32_t HDC_SHELL_UID = 2000;
 std::mutex PermissionUtils::uninstallMutex_;
 std::list<std::pair<int32_t, BundleInfo>> PermissionUtils::bundleInfoList_ = {};
 std::unordered_map<int32_t, std::list<std::pair<int32_t, BundleInfo>>::iterator> PermissionUtils::bundleInfoMap_ = {};
+std::unordered_set<uint64_t> PermissionUtils::systemAppCache_ = {};
 
 vector<AddPermParamInfo> PermissionUtils::infos_ {};
 vector<OpenPermissionInfo> PermissionUtils::pendingOpenPermissionInfos_ {};
@@ -750,10 +751,21 @@ bool PermissionUtils::IsBetaVersion()
     return versionType == "beta";
 }
 
+bool PermissionUtils::IsSystemAppBycache(const uint64_t tokenId)
+{
+    if (systemAppCache_.find(tokenId) != systemAppCache_.end()) {
+        return true;
+    } else if (TokenIdKit::IsSystemAppByFullTokenID(tokenId)) {
+        systemAppCache_.insert(tokenId);
+        return true;
+    }
+    return false;
+}
+
 bool PermissionUtils::IsSystemApp()
 {
     uint64_t tokenId = IPCSkeleton::GetCallingFullTokenID();
-    return TokenIdKit::IsSystemAppByFullTokenID(tokenId);
+    return IsSystemAppBycache(tokenId);
 }
 
 bool PermissionUtils::CheckIsSystemAppByUid()

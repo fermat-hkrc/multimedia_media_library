@@ -30,6 +30,7 @@ public:
     EXPORT MediaLibraryBundleManager() = default;
     EXPORT ~MediaLibraryBundleManager() = default;
     EXPORT static std::shared_ptr<MediaLibraryBundleManager> GetInstance();
+    EXPORT void GetBundleNameByTokenId(const int64_t tokenId, std::string &bundleName);
     EXPORT void GetBundleNameByUID(const int32_t uid, std::string &bundleName);
     EXPORT std::string GetClientBundleName();
     EXPORT void Clear();
@@ -40,6 +41,7 @@ private:
     const static int CAPACITY = 50;
     std::list<std::pair<int32_t, std::string>> cacheList_;
     std::unordered_map<int32_t, std::list<std::pair<int32_t, std::string>>::iterator> cacheMap_;
+    std::unordered_map<int64_t, std::string> tokenIdToBundleNameCache_;
     std::mutex uninstallMutex_;
 
     static std::once_flag oc_;

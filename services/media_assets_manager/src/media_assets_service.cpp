@@ -735,6 +735,16 @@ int32_t MediaAssetsService::CancelPhotoUriPermissionInner(
     return errCode;
 }
 
+static bool IsSupportHighResolution(const string& bundleName)
+{
+    CompatibleInfo compatibleInfo;
+    TranscodeCompatibleInfoOperation::QueryCompatibleInfo(bundleName, compatibleInfo);
+    if (compatibleInfo.highResolution) {
+        return true;
+    }
+    return false;
+}
+
 std::shared_ptr<DataShare::DataShareResultSet> MediaAssetsService::GetAssets(GetAssetsDto &dto, int32_t passCode)
 {
     MEDIA_INFO_LOG("MediaAssetsService::GetAssets enter");
@@ -743,9 +753,19 @@ std::shared_ptr<DataShare::DataShareResultSet> MediaAssetsService::GetAssets(Get
     cmd.SetDataSharePred(dto.predicates);
     // MEDIALIBRARY_TABLE just for RdbPredicates
     NativeRdb::RdbPredicates rdbPredicate = RdbUtils::ToPredicates(dto.predicates, PhotoColumn::PHOTOS_TABLE);
-    MediaLibraryRdbUtils::BuildDoubleCheckPredicates(rdbPredicate, dto.tokenId, passCode);
+    MediaLibraryRdbUtils::BuildDoubleCheckPredicates(rdbPredicate, static_cast<uint32_t>(dto.tokenId), passCode);
 
     MediaLibraryRdbUtils::AddQueryIndex(rdbPredicate, dto.columns);
+
+    string clientBundle;
+    MediaLibraryBundleManager::GetInstance()->GetBundleNameByTokenId(dto.tokenId, clientBundle);
+    MEDIA_ERR_LOG("clientBundle %{public}s", clientBundle.c_str());
+    if (!PermissionUtils::IsSystemAppBycache(dto.tokenId) &&
+        !HeifTranscodingCheckUtils::CanSupportedHighPixelPicture(clientBundle, HighPixelType::PIXEL_200) &&
+        !IsSupportHighResolution(clientBundle)) {
+        MEDIA_ERR_LOG("CanSupportedHighPixelPicture");
+        dto.columns.push_back(PhotoColumn::PHOTO_TRANS_CODE_FILE_SIZE);
+    }
     auto resultSet = MediaLibraryRdbStore::QueryWithFilter(rdbPredicate, dto.columns);
     CHECK_AND_RETURN_RET_LOG(resultSet, nullptr, "Failed to query assets");
     auto resultSetBridge = RdbDataShareAdapter::RdbUtils::ToResultSetBridge(resultSet);
